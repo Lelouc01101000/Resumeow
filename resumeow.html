@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Resumeow</title>
+<link rel="icon" type="image/png" href="assets/images/resumeow_logo.png">
+<!-- ASSET_VERSION -->
+<meta name="asset-version" content="2026.09.21-1">
+<link rel="stylesheet" href="resumeow.css?v=2026.09.21-1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Lora:ital,wght@0,400;0,600;1,400&family=Playfair+Display:wght@600;700&family=Cormorant+Garamond:wght@500;600;700&family=Sora:wght@600;700&family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=Work+Sans:wght@400;500&family=Nunito+Sans:wght@400;600&family=Karla:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand"><span class="mark"></span><h1>Resumeow</h1></div>
+    <div class="tabs" id="templateTabs">
+      <button class="tab active" data-tpl="1">Design 1</button>
+      <button class="tab" data-tpl="2">Design 2</button>
+      <button class="tab" data-tpl="3">Design 3</button>
+      <button class="tab" data-tpl="4">Design 4</button>
+      <button class="tab" data-tpl="5">Design 5</button>
+      <button class="tab" data-tpl="6">Design 6</button>
+      <button class="tab" data-tpl="7">Design 7</button>
+      <button class="tab" data-tpl="8">Design 8</button>
+    </div>
+    <button class="iconbtn" id="themeToggle" title="Toggle dark mode"></button>
+    <div class="download-wrap">
+      <button class="btn-primary" id="downloadBtn">Download <span class="caret">▾</span></button>
+      <div class="download-menu" id="downloadMenu">
+        <button data-format="png" type="button">Download as PNG</button>
+        <button data-format="pdf" type="button">Download as PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+
+    <details open>
+      <summary>Photo <span class="chev">›</span></summary>
+      <div class="panel-body">
+        <div class="photo-drop">
+          <div class="photo-preview" id="photoPreview"></div>
+          <label class="file-label">Upload photo<input type="file" id="photoInput" accept="image/*"></label>
+          <button class="xbtn" id="removePhoto" title="Remove photo">✕</button>
+        </div>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Name &amp; Title <span class="chev">›</span></summary>
+      <div class="panel-body">
+        <div class="field"><label>Full name</label><input type="text" id="nameInput"></div>
+        <div class="field"><label>Profession</label><input type="text" id="titleInput"></div>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Contact Info <span class="chev">›</span></summary>
+      <div class="panel-body" id="contactFields"></div>
+    </details>
+
+    <details open>
+      <summary>Motivation<span class="chev">›</span></summary>
+      <div class="panel-body">
+        <div id="motivationList"></div>
+        <div class="add-sec-row">
+          <button id="addMotivation">+ Add paragraph</button>
+        </div>
+      </div>
+    </details>
+
+    <details open>
+      <summary>Sections <span class="chev">›</span></summary>
+      <div class="panel-body">
+        <div id="sectionsList"></div>
+        <div class="add-sec-row">
+          <button id="addTextSection">+ Text section</button>
+          <button id="addListSection">+ Bullet list</button>
+        </div>
+      </div>
+    </details>
+
+    <details>
+      <summary>Design &amp; Customization <span class="chev">›</span></summary>
+      <div class="panel-body">
+        <div class="field">
+          <label>Accent color</label>
+          <div class="swatches" id="swatches"></div>
+        </div>
+        <div class="field">
+          <label>Font pairing</label>
+          <select id="fontSelect">
+            <option value="serif">Editorial Serif</option>
+            <option value="mixed">Serif headings, sans body</option>
+            <option value="sans">Modern Sans</option>
+            <option value="refined">Refined Serif</option>
+            <option value="geometric">Geometric Sans</option>
+            <option value="classic">Classic Sans</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Photo shape</label>
+          <div class="seg" id="shapeSeg">
+            <button data-shape="circle" class="active">Circle</button>
+            <button data-shape="rounded">Rounded</button>
+            <button data-shape="square">Square</button>
+          </div>
+        </div>
+      </div>
+    </details>
+
+  </div>
+
+  <div class="canvas" id="canvas">
+    <div class="resume-scale" id="resumeScale">
+      <div id="resume-page"></div>
+    </div>
+  </div>
+
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-btn active" data-view="editor">Edit</button>
+    <button class="mobile-nav-btn" data-view="preview">Preview</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- icons ---------------- */
+const ICON = {
+  email: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 6 10-6"/></svg>',
+  phone: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1.1.4 2.1.7 3.1a2 2 0 0 1-.5 2.1L8 10.1a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.5c1 .3 2 .6 3.1.7a2 2 0 0 1 1.7 2z"/></svg>',
+  location: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  website: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg>',
+  link: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1.5-1.5"/></svg>',
+  sun: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  moon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>',
+  user: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>'
+};
+
+/* ---------------- versioning ----------------
+   STATE_SCHEMA_VERSION only changes when the shape of `state` changes
+   (fields renamed/removed/restructured). A saved state built by an older
+   schema is passed through migrateState() below instead of being wiped,
+   so a visitor's in progress resume survives a site update. Bumping the
+   CSS/HTML asset version meta tag (cache-busting) is unrelated to this
+   and does not require touching this number. */
+const STATE_SCHEMA_VERSION = 1;
+
+/* ---------------- default state ---------------- */
+function defaultState(){
+  return {
+    schemaVersion: STATE_SCHEMA_VERSION,
+    theme: 'dark',
+    template: 1,
+    accent: '#2F6F6B',
+    font: 'serif',
+    photoShape: 'circle',
+    photo: null,
+    name: 'John Smith',
+    title: 'Computer Engineer',
+    contacts: {
+      email:    {value: 'placeholer@gmail.com', show: true},
+      phone:    {value: '+995 555 55 55 55',        show: true},
+      location: {value: 'Placeholder Location',               show: true},
+      website:  {value: 'Website.Placeholder', url: 'https://placeholder', show: true}
+    },
+    motivation: [
+      { id: 'mot_default', title: 'Motivation',
+        content: 'This is distinguished paragraph from the rest were you can find your motivation summery or such' }
+    ],
+    sections: [
+      { id: 'sec_skills', type: 'list', title: 'Skills',
+        items: ['Web Developent', 'Interaction design', 'Design systems', 'Prototyping', 'Communication'] },
+      { id: 'sec_experience', type: 'text', title: 'Work Experience',
+        content: 'you can write your job experiences, education and etc in this paragraphs' },
+      { id: 'sec_education', type: 'text', title: 'Education',
+        content: 'you can add and remove as many paragraphs and bullet lists as needed' }
+    ]
+  };
+}
+let state = defaultState();
+const ACCENTS = ['#2F6F6B', '#8A5A3B', '#3C5A8A', '#6B4E8A', '#8A3C4E', '#4B6B2F'];
+const STORAGE_KEY = 'resumeow_state';
+
+/* ---------------- persistence ---------------- */
+let saveTimer = null;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToStorage, 450);
+}
+async function saveToStorage(){
+  const data = JSON.stringify(state);
+  try{
+    if (window.storage && window.storage.set){
+      await window.storage.set(STORAGE_KEY, data, false);
+    }
+  }catch(e){}
+  try{ localStorage.setItem(STORAGE_KEY, data); }catch(e){}
+}
+async function loadFromStorage(){
+  try{
+    if (window.storage && window.storage.get){
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if (res && res.value) return JSON.parse(res.value);
+    }
+  }catch(e){}
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  }catch(e){}
+  return null;
+}
+/* one way upgrade path for a state object saved by an older schema version;
+   add a case here (don't delete old ones) whenever STATE_SCHEMA_VERSION
+   is bumped, so every past save keeps loading correctly */
+function migrateState(saved){
+  if (saved.motivation && !Array.isArray(saved.motivation)){
+    saved.motivation = [{ id: newId('mot'), title: saved.motivation.title || 'Motivation', content: saved.motivation.content || '' }];
+  }
+  if (!saved.contacts.website.url) saved.contacts.website.url = saved.contacts.website.value || '';
+  saved.schemaVersion = STATE_SCHEMA_VERSION;
+  return saved;
+}
+
+/* ---------------- helpers ---------------- */
+function esc(s){
+  return (s || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function newId(prefix){
+  return prefix + '_' + Date.now().toString(36) + '_' + Math.floor(Math.random()*1e4);
+}
+function shapeRadius(){
+  return state.photoShape === 'circle' ? '50%' : state.photoShape === 'rounded' ? '16px' : '0px';
+}
+/* each pairing uses two genuinely distinct loaded families (see the
+   Google Fonts link in <head>) - no two entries share a body or
+   heading stack, so switching pairings always visibly changes the type */
+const FONT_PAIRS = {
+  serif:     {heading: '"Fraunces", Georgia, serif',            body: '"Lora", Georgia, serif'},
+  mixed:     {heading: '"Playfair Display", Georgia, serif',    body: '"Inter", -apple-system, sans-serif'},
+  sans:      {heading: '"Manrope", -apple-system, sans-serif',  body: '"Work Sans", -apple-system, sans-serif'},
+  refined:   {heading: '"Cormorant Garamond", Georgia, serif',  body: '"Nunito Sans", -apple-system, sans-serif'},
+  geometric: {heading: '"Sora", -apple-system, sans-serif',     body: '"Karla", -apple-system, sans-serif'},
+  classic:   {heading: '"Work Sans", -apple-system, sans-serif',body: '"Karla", -apple-system, sans-serif'}
+};
+function fontStacks(){
+  return FONT_PAIRS[state.font] || FONT_PAIRS.serif;
+}
+function normalizeUrl(u){
+  const v = (u || '').trim();
+  if (!v) return '';
+  return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : 'https://' + v;
+}
+function contactLine(key, icon){
+  const c = state.contacts[key];
+  if (!c.show || !c.value.trim()) return '';
+  const inner = `${icon}<span>${esc(c.value)}</span>`;
+  if (key === 'email'){
+    return `<a class="contact-line" href="mailto:${esc(c.value.trim())}">${inner}</a>`;
+  }
+  if (key === 'phone'){
+    const tel = c.value.replace(/[^\d+]/g, '');
+    return `<a class="contact-line" href="tel:${esc(tel)}">${inner}</a>`;
+  }
+  if (key === 'website'){
+    const href = normalizeUrl(c.url || c.value);
+    if (!href) return `<span class="contact-line">${inner}</span>`;
+    return `<a class="contact-line" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${inner}</a>`;
+  }
+  return `<span class="contact-line">${inner}</span>`;
+}
+function sectionHtml(s, f){
+  if (s.type === 'list'){
+    return `<div class="section">
+      <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+      <ul class="skills">${s.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+    </div>`;
+  }
+  return `<div class="section">
+    <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+    <p class="body-text">${esc(s.content)}</p>
+  </div>`;
+}
+
+/* ---------------- render resume ---------------- */
+function renderResume(){
+  const page = document.getElementById('resume-page');
+  const f = fontStacks();
+  page.style.setProperty('--r-accent', state.accent);
+  page.style.setProperty('--r-accent-soft', state.accent + '1f');
+  page.style.fontFamily = f.body;
+
+  if (state.template === 1){
+    page.className = 'tpl1';
+    page.innerHTML = `
+      <div class="rail" style="background:${state.accent}14">
+        ${state.photo ? `<div class="photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+        <div class="rail-block">
+          <h3 style="font-family:${f.heading}">Contact</h3>
+          ${contactLine('email', ICON.email)}
+          ${contactLine('phone', ICON.phone)}
+          ${contactLine('location', ICON.location)}
+          ${contactLine('website', ICON.website)}
+        </div>
+        ${state.motivation.map(m => `<div class="rail-block">
+          <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+          <p>${esc(m.content)}</p>
+        </div>`).join('')}
+      </div>
+      <div class="main" style="font-family:${f.body}">
+        <h1 class="name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+        <p class="role">${esc(state.title)}</p>
+        <div class="divider"></div>
+        ${state.sections.map(s => sectionHtml(s, f)).join('')}
+      </div>
+    `;
+  } else if (state.template === 2){
+    const listSecs = state.sections.filter(s => s.type === 'list');
+    const textSecs = state.sections.filter(s => s.type === 'text');
+    page.className = 'tpl2';
+    page.innerHTML = `
+      <div class="band">
+        ${state.photo ? `<div class="photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+        <div>
+          <h1 class="name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+          <p class="role">${esc(state.title)}</p>
+        </div>
+      </div>
+      <div class="contact-strip">
+        ${contactLine('email', ICON.email)}
+        ${contactLine('phone', ICON.phone)}
+        ${contactLine('location', ICON.location)}
+        ${contactLine('website', ICON.website)}
+      </div>
+      ${state.motivation.length ? `<div class="lead-band">
+        ${state.motivation.map(m => `<div class="lead-item">
+          <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+          <p>${esc(m.content)}</p>
+        </div>`).join('')}
+      </div>` : ''}
+      <div class="cols">
+        <div>${listSecs.map(s => sectionHtml(s, f)).join('')}</div>
+        <div>${textSecs.map(s => sectionHtml(s, f)).join('')}</div>
+      </div>
+    `;
+  } else if (state.template === 3){
+    const listSecs = state.sections.filter(s => s.type === 'list');
+    const textSecs = state.sections.filter(s => s.type === 'text');
+    page.className = 'tpl3';
+    page.innerHTML = `
+      <div class="t3-header">
+        <div class="t3-blob t3-blob-a"></div>
+        <div class="t3-blob t3-blob-b"></div>
+        <div class="t3-blob t3-blob-c"></div>
+        <div class="t3-headtext">
+          ${state.photo ? `<div class="t3-photo-wrap"><div class="t3-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div></div>` : ''}
+          <div>
+            <h1 class="t3-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+            <p class="t3-role">${esc(state.title)}</p>
+          </div>
+        </div>
+        <svg class="t3-wave" viewBox="0 0 800 44" preserveAspectRatio="none"><path d="M0,22 C130,46 270,2 400,18 C530,34 670,6 800,22 L800,44 L0,44 Z" fill="#FFFFFF"/></svg>
+      </div>
+      <div class="t3-contacts">
+        ${contactLine('email', ICON.email)}
+        ${contactLine('phone', ICON.phone)}
+        ${contactLine('location', ICON.location)}
+        ${contactLine('website', ICON.website)}
+      </div>
+      <div class="t3-body" style="font-family:${f.body}">
+        <aside class="t3-aside">
+          ${state.motivation.map(m => `<div class="t3-card">
+            <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+            <p>${esc(m.content)}</p>
+          </div>`).join('')}
+          ${listSecs.map(s => `<div class="t3-card">
+            <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+            <ul class="skills">${s.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+          </div>`).join('')}
+        </aside>
+        <main class="t3-main">
+          ${textSecs.map(s => `<div class="section">
+            <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+            <p class="body-text">${esc(s.content)}</p>
+          </div>`).join('')}
+        </main>
+      </div>
+    `;
+  } else if (state.template === 4){
+    page.className = 'tpl4';
+    page.innerHTML = `
+      <div class="t4-header">
+        <div class="t4-headtop">
+          ${state.photo ? `<div class="t4-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+          <div>
+            <h1 class="t4-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+            <p class="t4-role">${esc(state.title)}</p>
+          </div>
+        </div>
+        <div class="t4-contacts">
+          ${contactLine('email', ICON.email)}
+          ${contactLine('phone', ICON.phone)}
+          ${contactLine('location', ICON.location)}
+          ${contactLine('website', ICON.website)}
+        </div>
+      </div>
+      ${state.motivation.length ? `<div class="t4-lead">
+        ${state.motivation.map(m => `<p><strong style="font-family:${f.heading}">${esc(m.title)}.</strong> ${esc(m.content)}</p>`).join('')}
+      </div>` : ''}
+      <div class="t4-body">
+        ${state.sections.map((s, i) => `
+          <div class="t4-row">
+            <div class="t4-num">${String(i + 1).padStart(2, '0')}</div>
+            <div class="t4-col">
+              <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+              ${s.type === 'list'
+                ? `<div class="t4-tags">${s.items.map(it => `<span>${esc(it)}</span>`).join('')}</div>`
+                : `<p class="body-text">${esc(s.content)}</p>`}
+            </div>
+          </div>`).join('')}
+      </div>
+    `;
+  } else if (state.template === 5){
+    page.className = 'tpl5';
+    page.innerHTML = `
+      <div class="t5-side" style="background:${state.accent}">
+        ${state.photo ? `<div class="t5-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+        <h1 class="t5-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+        <p class="t5-role">${esc(state.title)}</p>
+        <div class="t5-div"></div>
+        <div class="t5-contacts">
+          ${contactLine('email', ICON.email)}
+          ${contactLine('phone', ICON.phone)}
+          ${contactLine('location', ICON.location)}
+          ${contactLine('website', ICON.website)}
+        </div>
+        ${state.motivation.map(m => `<div class="t5-quote">
+          <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+          <p>${esc(m.content)}</p>
+        </div>`).join('')}
+      </div>
+      <div class="t5-main">
+        ${state.sections.map(s => sectionHtml(s, f)).join('')}
+      </div>
+    `;
+  } else if (state.template === 6){
+    const listSecs = state.sections.filter(s => s.type === 'list');
+    const textSecs = state.sections.filter(s => s.type === 'text');
+    page.className = 'tpl6';
+    page.innerHTML = `
+      <div class="t6-header">
+        ${state.photo ? `<div class="t6-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+        <h1 class="t6-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+        <p class="t6-role">${esc(state.title)}</p>
+        <div class="t6-contacts">
+          ${contactLine('email', ICON.email)}
+          ${contactLine('phone', ICON.phone)}
+          ${contactLine('location', ICON.location)}
+          ${contactLine('website', ICON.website)}
+        </div>
+      </div>
+      ${state.motivation.length ? `<div class="t6-lead">
+        ${state.motivation.map(m => `<p>${esc(m.content)}</p>`).join('')}
+      </div>` : ''}
+      <div class="t6-body">
+        ${listSecs.length ? `<div class="t6-tags-wrap">
+          ${listSecs.map(s => `<div class="t6-tagsec">
+            <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+            <ul class="skills">${s.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+          </div>`).join('')}
+        </div>` : ''}
+        <div class="t6-timeline">
+          ${textSecs.map(s => `<div class="t6-tl-item">
+            <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+            <p class="body-text">${esc(s.content)}</p>
+          </div>`).join('')}
+        </div>
+      </div>
+    `;
+  } else if (state.template === 7){
+    const listSecs = state.sections.filter(s => s.type === 'list');
+    const textSecs = state.sections.filter(s => s.type === 'text');
+    page.className = 'tpl7';
+    page.innerHTML = `
+      <div class="t7-header">
+        <div class="t7-shape t7-shape-a"></div>
+        <div class="t7-shape t7-shape-b"></div>
+        <div class="t7-headtext">
+          ${state.photo ? `<div class="t7-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>` : ''}
+          <div>
+            <h1 class="t7-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+            <p class="t7-role">${esc(state.title)}</p>
+          </div>
+        </div>
+      </div>
+      <div class="t7-contacts">
+        ${contactLine('email', ICON.email)}
+        ${contactLine('phone', ICON.phone)}
+        ${contactLine('location', ICON.location)}
+        ${contactLine('website', ICON.website)}
+      </div>
+      <div class="t7-body" style="font-family:${f.body}">
+        <aside class="t7-aside">
+          ${state.motivation.map(m => `<div class="t7-card">
+            <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+            <p>${esc(m.content)}</p>
+          </div>`).join('')}
+          ${listSecs.map(s => `<div class="t7-card">
+            <h3 style="font-family:${f.heading}">${esc(s.title)}</h3>
+            <ul class="skills">${s.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+          </div>`).join('')}
+        </aside>
+        <main class="t7-main">
+          ${textSecs.map(s => sectionHtml(s, f)).join('')}
+        </main>
+      </div>
+    `;
+  } else if (state.template === 8){
+    page.className = 'tpl8';
+    page.innerHTML = `
+      <div class="t8-side" style="background:${state.accent}">
+        ${state.photo ? `<div class="t8-rings">
+          <span class="t8-ring t8-ring-a"></span>
+          <span class="t8-ring t8-ring-b"></span>
+          <div class="t8-photo" style="border-radius:${shapeRadius()}"><img src="${state.photo}"></div>
+        </div>` : ''}
+        <div class="t8-idblock">
+          <h1 class="t8-name" style="font-family:${f.heading}">${esc(state.name)}</h1>
+          <p class="t8-role">${esc(state.title)}</p>
+        </div>
+        <div class="t8-contacts">
+          ${contactLine('email', ICON.email)}
+          ${contactLine('phone', ICON.phone)}
+          ${contactLine('location', ICON.location)}
+          ${contactLine('website', ICON.website)}
+        </div>
+        ${state.motivation.map(m => `<div class="t8-quote">
+          <h3 style="font-family:${f.heading}">${esc(m.title)}</h3>
+          <p>${esc(m.content)}</p>
+        </div>`).join('')}
+      </div>
+      <div class="t8-main" style="font-family:${f.body}">
+        ${state.sections.map(s => sectionHtml(s, f)).join('')}
+      </div>
+    `;
+  }
+  scheduleSave();
+}
+
+/* ---------------- editor: contacts ---------------- */
+function renderContactFields(){
+  const wrap = document.getElementById('contactFields');
+  const defs = [
+    ['email', 'Email', ICON.email, false],
+    ['phone', 'Phone', ICON.phone, false],
+    ['location', 'Location', ICON.location, false],
+    ['website', 'Website', ICON.website, true]
+  ];
+  wrap.innerHTML = defs.map(([key, label, icon, hasUrl]) => `
+    <div class="contact-row">
+      <span class="cicon">${icon}</span>
+      <input type="text" data-key="${key}" class="contact-value" value="${esc(state.contacts[key].value)}" placeholder="${label}">
+      <label class="switch">
+        <input type="checkbox" class="contact-toggle" data-key="${key}" ${state.contacts[key].show ? 'checked' : ''}>
+        <span class="track"><span class="thumb"></span></span>
+      </label>
+    </div>
+    ${hasUrl ? `<div class="contact-row url-row">
+      <span class="cicon">${ICON.link}</span>
+      <input type="text" data-key="${key}" class="contact-url" value="${esc(state.contacts[key].url || '')}" placeholder="Where should this text link to? e.g. https://yoursite.com">
+    </div>` : ''}
+  `).join('');
+
+  wrap.querySelectorAll('.contact-value').forEach(input => {
+    input.addEventListener('input', e => {
+      state.contacts[e.target.dataset.key].value = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.contact-url').forEach(input => {
+    input.addEventListener('input', e => {
+      state.contacts[e.target.dataset.key].url = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.contact-toggle').forEach(input => {
+    input.addEventListener('change', e => {
+      state.contacts[e.target.dataset.key].show = e.target.checked;
+      renderResume();
+    });
+  });
+}
+
+/* ---------------- editor: photo ---------------- */
+function renderPhotoPreview(){
+  const box = document.getElementById('photoPreview');
+  box.innerHTML = state.photo ? `<img src="${state.photo}">` : ICON.user;
+}
+
+/* ---------------- editor: motivation / summary ---------------- */
+function motivationCardHtml(m, i, total){
+  const upDisabled = i === 0 ? 'disabled' : '';
+  const downDisabled = i === total - 1 ? 'disabled' : '';
+  return `<div class="sec-card" data-mot="${m.id}">
+    <span class="type-badge">Paragraph</span>
+    <div class="sec-head">
+      <div class="movebtns">
+        <button class="mv mot-mv" data-id="${m.id}" data-dir="-1" ${upDisabled} title="Move up">▲</button>
+        <button class="mv mot-mv" data-id="${m.id}" data-dir="1" ${downDisabled} title="Move down">▼</button>
+      </div>
+      <input type="text" class="sec-title mot-title" data-id="${m.id}" value="${esc(m.title)}" placeholder="Heading">
+      <button class="xbtn mot-remove" data-id="${m.id}" title="Remove paragraph">✕</button>
+    </div>
+    <textarea class="sec-content mot-content" data-id="${m.id}" placeholder="Write a short paragraph...">${esc(m.content)}</textarea>
+  </div>`;
+}
+function renderMotivationEditor(){
+  const wrap = document.getElementById('motivationList');
+  wrap.innerHTML = state.motivation.map((m, i) => motivationCardHtml(m, i, state.motivation.length)).join('');
+
+  wrap.querySelectorAll('.mot-title').forEach(el => {
+    el.addEventListener('input', e => {
+      const m = state.motivation.find(x => x.id === e.target.dataset.id);
+      m.title = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.mot-content').forEach(el => {
+    el.addEventListener('input', e => {
+      const m = state.motivation.find(x => x.id === e.target.dataset.id);
+      m.content = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.mot-remove').forEach(el => {
+    el.addEventListener('click', e => {
+      const id = e.target.closest('button').dataset.id;
+      state.motivation = state.motivation.filter(x => x.id !== id);
+      renderMotivationEditor();
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.mot-mv').forEach(el => {
+    el.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      const id = btn.dataset.id;
+      const dir = +btn.dataset.dir;
+      const idx = state.motivation.findIndex(x => x.id === id);
+      const target = idx + dir;
+      if (target < 0 || target >= state.motivation.length) return;
+      const tmp = state.motivation[idx];
+      state.motivation[idx] = state.motivation[target];
+      state.motivation[target] = tmp;
+      renderMotivationEditor();
+      renderResume();
+    });
+  });
+}
+
+/* ---------------- editor: dynamic sections ---------------- */
+function sectionCardHtml(s, i, total){
+  const upDisabled = i === 0 ? 'disabled' : '';
+  const downDisabled = i === total - 1 ? 'disabled' : '';
+  const head = `
+    <div class="sec-head">
+      <div class="movebtns">
+        <button class="mv" data-id="${s.id}" data-dir="-1" ${upDisabled} title="Move up">▲</button>
+        <button class="mv" data-id="${s.id}" data-dir="1" ${downDisabled} title="Move down">▼</button>
+      </div>
+      <input type="text" class="sec-title" data-id="${s.id}" value="${esc(s.title)}" placeholder="Section title">
+      <button class="xbtn sec-remove" data-id="${s.id}" title="Remove section">✕</button>
+    </div>`;
+
+  if (s.type === 'list'){
+    const items = s.items.map((val, idx) => `
+      <div class="skill-item">
+        <input type="text" class="item-value" data-id="${s.id}" data-i="${idx}" value="${esc(val)}">
+        <button class="xbtn item-remove" data-id="${s.id}" data-i="${idx}">✕</button>
+      </div>`).join('');
+    return `<div class="sec-card" data-sec="${s.id}">
+      <span class="type-badge">Bullet list</span>
+      ${head}
+      <div class="sec-items">${items}</div>
+      <div class="add-row">
+        <input type="text" class="item-input" data-id="${s.id}" placeholder="Add item and press Enter">
+        <button class="item-add" data-id="${s.id}">Add</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="sec-card" data-sec="${s.id}">
+    <span class="type-badge">Text</span>
+    ${head}
+    <textarea class="sec-content" data-id="${s.id}" placeholder="Write about it...">${esc(s.content)}</textarea>
+  </div>`;
+}
+
+function renderSectionsEditor(){
+  const wrap = document.getElementById('sectionsList');
+  wrap.innerHTML = state.sections.map((s, i) => sectionCardHtml(s, i, state.sections.length)).join('');
+
+  wrap.querySelectorAll('.sec-title').forEach(el => {
+    el.addEventListener('input', e => {
+      const s = state.sections.find(x => x.id === e.target.dataset.id);
+      s.title = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.sec-content').forEach(el => {
+    el.addEventListener('input', e => {
+      const s = state.sections.find(x => x.id === e.target.dataset.id);
+      s.content = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.item-value').forEach(el => {
+    el.addEventListener('input', e => {
+      const s = state.sections.find(x => x.id === e.target.dataset.id);
+      s.items[+e.target.dataset.i] = e.target.value;
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.item-remove').forEach(el => {
+    el.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      const s = state.sections.find(x => x.id === btn.dataset.id);
+      s.items.splice(+btn.dataset.i, 1);
+      renderSectionsEditor();
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.item-add').forEach(el => {
+    el.addEventListener('click', () => addItem(el.dataset.id));
+  });
+  wrap.querySelectorAll('.item-input').forEach(el => {
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter'){ e.preventDefault(); addItem(e.target.dataset.id); }
+    });
+  });
+  wrap.querySelectorAll('.sec-remove').forEach(el => {
+    el.addEventListener('click', e => {
+      const id = e.target.closest('button').dataset.id;
+      state.sections = state.sections.filter(x => x.id !== id);
+      renderSectionsEditor();
+      renderResume();
+    });
+  });
+  wrap.querySelectorAll('.mv').forEach(el => {
+    el.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      const id = btn.dataset.id;
+      const dir = +btn.dataset.dir;
+      const idx = state.sections.findIndex(x => x.id === id);
+      const target = idx + dir;
+      if (target < 0 || target >= state.sections.length) return;
+      const tmp = state.sections[idx];
+      state.sections[idx] = state.sections[target];
+      state.sections[target] = tmp;
+      renderSectionsEditor();
+      renderResume();
+    });
+  });
+}
+function addItem(sectionId){
+  const wrap = document.querySelector(`.item-input[data-id="${sectionId}"]`);
+  const val = wrap.value.trim();
+  if (!val) return;
+  const s = state.sections.find(x => x.id === sectionId);
+  s.items.push(val);
+  renderSectionsEditor();
+  renderResume();
+}
+
+/* ---------------- editor: accent swatches ---------------- */
+function renderSwatches(){
+  const wrap = document.getElementById('swatches');
+  const isCustom = !ACCENTS.includes(state.accent);
+  wrap.innerHTML = ACCENTS.map(c => `<div class="swatch ${(!isCustom && c === state.accent) ? 'selected' : ''}" data-c="${c}" style="background:${c}"></div>`).join('')
+    + `<label class="swatch custom-swatch ${isCustom ? 'selected' : ''}" title="Pick a custom color">
+        <input type="color" id="customColor" value="${state.accent}">
+      </label>`;
+
+  wrap.querySelectorAll('.swatch[data-c]').forEach(sw => {
+    sw.addEventListener('click', () => {
+      state.accent = sw.dataset.c;
+      renderSwatches();
+      renderResume();
+    });
+  });
+  document.getElementById('customColor').addEventListener('input', e => {
+    state.accent = e.target.value;
+    // update highlight without rebuilding the color input itself,
+    // so the native color picker doesn't close mid-drag
+    wrap.querySelectorAll('.swatch[data-c]').forEach(sw => sw.classList.remove('selected'));
+    wrap.querySelector('.custom-swatch').classList.add('selected');
+    renderResume();
+  });
+}
+
+/* ---------------- static bindings ---------------- */
+function bindStaticFields(){
+  document.getElementById('nameInput').value = state.name;
+  document.getElementById('titleInput').value = state.title;
+  document.querySelectorAll('#shapeSeg button').forEach(b => b.classList.toggle('active', b.dataset.shape === state.photoShape));
+  document.getElementById('fontSelect').value = state.font;
+  document.querySelectorAll('#templateTabs .tab').forEach(b => {
+    if (b.dataset.tpl) b.classList.toggle('active', +b.dataset.tpl === state.template);
+  });
+  document.documentElement.setAttribute('data-theme', state.theme);
+  document.querySelector('.app').dataset.mobileView = 'editor';
+  paintThemeIcon();
+}
+
+document.getElementById('nameInput').addEventListener('input', e => { state.name = e.target.value; renderResume(); });
+document.getElementById('titleInput').addEventListener('input', e => { state.title = e.target.value; renderResume(); });
+
+document.getElementById('photoInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state.photo = reader.result;
+    renderPhotoPreview();
+    renderResume();
+  };
+  reader.readAsDataURL(file);
+});
+document.getElementById('removePhoto').addEventListener('click', () => {
+  state.photo = null;
+  document.getElementById('photoInput').value = '';
+  renderPhotoPreview();
+  renderResume();
+});
+
+document.getElementById('addMotivation').addEventListener('click', () => {
+  state.motivation.push({ id: newId('mot'), title: 'Additional note', content: '' });
+  renderMotivationEditor();
+  renderResume();
+});
+
+document.getElementById('addTextSection').addEventListener('click', () => {
+  state.sections.push({ id: newId('sec'), type: 'text', title: 'New Section', content: '' });
+  renderSectionsEditor();
+  renderResume();
+});
+document.getElementById('addListSection').addEventListener('click', () => {
+  state.sections.push({ id: newId('sec'), type: 'list', title: 'New List', items: [] });
+  renderSectionsEditor();
+  renderResume();
+});
+
+document.getElementById('fontSelect').addEventListener('change', e => {
+  state.font = e.target.value;
+  renderResume();
+});
+
+document.getElementById('shapeSeg').addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  state.photoShape = btn.dataset.shape;
+  document.querySelectorAll('#shapeSeg button').forEach(b => b.classList.toggle('active', b === btn));
+  renderResume();
+});
+
+document.getElementById('templateTabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  state.template = +btn.dataset.tpl;
+  document.querySelectorAll('#templateTabs .tab').forEach(b => b.classList.toggle('active', b === btn));
+  renderResume();
+});
+
+/* ---------------- mobile edit/preview switch ----------------
+   Below the layout breakpoint the sidebar and canvas are full screen
+   panels instead of side by side columns; this just flips which one
+   the "app" root exposes. Desktop ignores data mobile view entirely
+   (see the media query), so the buttons stay inert above the breakpoint. */
+const appRoot = document.querySelector('.app');
+document.getElementById('mobileNav').addEventListener('click', e => {
+  const btn = e.target.closest('.mobile-nav-btn');
+  if (!btn) return;
+  appRoot.dataset.mobileView = btn.dataset.view;
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.toggle('active', b === btn));
+  if (btn.dataset.view === 'preview') fitResumeToViewport();
+});
+
+/* ---------------- responsive resume scaling ----------------
+   #resume page keeps a fixed 794px layout width so the
+   PNG/PDF export always produces the same page geometry; on a narrow
+   viewport it's visually shrunk with a CSS transform on its wrapper
+   instead, which changes nothing about the export target itself. */
+function fitResumeToViewport(){
+  const canvas = document.getElementById('canvas');
+  const wrap = document.getElementById('resumeScale');
+  const available = canvas.clientWidth - 24;
+  const scale = Math.min(1, available / 794);
+  wrap.style.setProperty('--rs', scale);
+}
+window.addEventListener('resize', () => { fitResumeToViewport(); });
+
+const themeBtn = document.getElementById('themeToggle');
+function paintThemeIcon(){
+  themeBtn.innerHTML = state.theme === 'light' ? ICON.moon : ICON.sun;
+}
+themeBtn.addEventListener('click', () => {
+  state.theme = state.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', state.theme);
+  paintThemeIcon();
+  scheduleSave();
+});
+
+/* ---------------- download (single button, choose format) ---------------- */
+const downloadBtn = document.getElementById('downloadBtn');
+const downloadMenu = document.getElementById('downloadMenu');
+downloadBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  downloadMenu.classList.toggle('open');
+});
+downloadMenu.addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', () => downloadMenu.classList.remove('open'));
+
+async function exportCanvas(){
+  // the wrapper's scale transform is a display only convenience for narrow
+  // viewports (see fitResumeToViewport) neutralize it before capture so
+  // html2canvas always reads the resume at its true 794px layout size
+  const wrap = document.getElementById('resumeScale');
+  const prevScale = wrap.style.getPropertyValue('--rs');
+  wrap.style.setProperty('--rs', 1);
+  try{
+    return await html2canvas(document.getElementById('resume-page'), {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true
+    });
+  } finally {
+    if (prevScale) wrap.style.setProperty('--rs', prevScale); else wrap.style.removeProperty('--rs');
+  }
+}
+function fileBase(){
+  return state.name.trim() ? state.name.trim().replace(/\s+/g, '_') : 'resume';
+}
+async function downloadPng(){
+  const original = downloadBtn.innerHTML;
+  downloadBtn.disabled = true; downloadBtn.textContent = 'Preparing...';
+  try{
+    const canvas = await exportCanvas();
+    const link = document.createElement('a');
+    link.download = fileBase() + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }catch(err){
+    alert('Something went wrong generating the image. Please try again.');
+  }finally{
+    downloadBtn.disabled = false; downloadBtn.innerHTML = original;
+  }
+}
+async function downloadPdf(){
+  const original = downloadBtn.innerHTML;
+  downloadBtn.disabled = true; downloadBtn.textContent = 'Preparing...';
+  try{
+    const canvas = await exportCanvas();
+    const { jsPDF } = window.jspdf;
+    /* page size is set to match the resume's own pixel size, so the
+       PDF is exactly one page that fits the content no blank space,
+       nothing cut off, and it stretches or shrinks with the content. */
+    const pdf = new jsPDF({
+      orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height],
+      hotfixes: ['px_scaling']
+    });
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width, canvas.height);
+    pdf.save(fileBase() + '.pdf');
+  }catch(err){
+    alert('Something went wrong generating the PDF. Please try again.');
+  }finally{
+    downloadBtn.disabled = false; downloadBtn.innerHTML = original;
+  }
+}
+downloadMenu.querySelectorAll('button[data-format]').forEach(b => {
+  b.addEventListener('click', async () => {
+    downloadMenu.classList.remove('open');
+    if (b.dataset.format === 'png') await downloadPng();
+    else await downloadPdf();
+  });
+});
+
+/* ---------------- boot ---------------- */
+(async function init(){
+  const saved = await loadFromStorage();
+  if (saved) state = migrateState(Object.assign(defaultState(), saved));
+
+  bindStaticFields();
+  renderPhotoPreview();
+  renderContactFields();
+  renderMotivationEditor();
+  renderSectionsEditor();
+  renderSwatches();
+  renderResume();
+  fitResumeToViewport();
+})();
+</script>
+</body>
+</html>
