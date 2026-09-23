@@ -102,6 +102,7 @@ body{
   flex:0 0 auto;
 }
 .iconbtn:hover{border-color:var(--accent);}
+.iconbtn.save-failed{border-color:#B0453E; color:#B0453E;}
 .btn-primary{
   display:flex;align-items:center;gap:8px;
   border:none;
@@ -136,6 +137,68 @@ body{
   display:flex; align-items:center; gap:9px;
 }
 .download-menu button:hover{background:var(--panel-2); color:var(--accent);}
+
+/* ---------- CVs dropdown ---------- */
+.cv-wrap{position:relative;}
+.cv-menu{
+  position:fixed;
+  background:var(--panel); border:1px solid var(--line);
+  border-radius:10px; box-shadow:var(--shadow);
+  padding:10px; width:280px; z-index:30;
+  display:none; flex-direction:column; gap:8px;
+}
+.cv-menu.open{display:flex;}
+.cv-menu-head{
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--font-ui); font-size:12px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft);
+  padding:2px 2px 0;
+}
+.cv-count{font-weight:600; text-transform:none; letter-spacing:0;}
+.cv-list{display:flex; flex-direction:column; gap:4px; max-height:220px; overflow-y:auto;}
+.cv-row{
+  display:flex; align-items:center; gap:2px;
+  border-radius:8px; border:1px solid transparent;
+}
+.cv-row.active{background:var(--panel-2); border-color:var(--accent);}
+.cv-row-main{
+  flex:1; min-width:0; text-align:left; background:transparent; border:none; cursor:pointer;
+  padding:7px 8px; border-radius:7px; display:flex; flex-direction:column; gap:1px;
+}
+.cv-row-main:hover{background:var(--panel-2);}
+.cv-row-name{
+  font-family:var(--font-ui); font-size:13px; font-weight:650; color:var(--ink);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.cv-row-date{font-family:var(--font-ui); font-size:11px; color:var(--ink-soft);}
+.cv-row-icon{
+  flex:0 0 auto; width:26px; height:26px; border-radius:6px; border:none;
+  background:transparent; color:var(--ink-soft); cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.cv-row-icon:hover{background:var(--panel-2); color:var(--ink);}
+.cv-row-icon.cv-row-danger:hover{color:#B0453E;}
+.cv-row-rename{
+  flex:1; min-width:0; font-family:var(--font-ui); font-size:13px; font-weight:650;
+  background:var(--bg); border:1px solid var(--accent); border-radius:6px;
+  color:var(--ink); padding:5px 7px;
+}
+.cv-action-btn{
+  width:100%;
+  font-family:var(--font-ui); font-size:12.5px; font-weight:650;
+  border-radius:7px; padding:8px; cursor:pointer; border:none;
+  background:var(--accent); color:#fff;
+}
+.cv-note{
+  display:none; font-family:var(--font-ui); font-size:12px; color:var(--ink-soft);
+  background:var(--panel-2); border-radius:7px; padding:8px 10px;
+  align-items:center; justify-content:space-between; gap:8px;
+}
+.cv-note.show{display:flex;}
+.cv-note button{
+  background:none; border:none; color:var(--accent); font-weight:700;
+  font-family:var(--font-ui); font-size:12px; cursor:pointer; flex:0 0 auto;
+}
 
 /* ---------- sidebar / editor ---------- */
 .sidebar{
@@ -529,7 +592,7 @@ a.contact-line:hover{text-decoration:underline; text-decoration-color:currentCol
 .t8-photo img{width:100%; height:100%; object-fit:cover;}
 .t8-name{font-size:24px; margin:0; font-weight:700; letter-spacing:-0.01em; line-height:1.2;}
 .t8-role{font-size:13px; margin:4px 0 0; opacity:.85; font-weight:600;}
-.t8-contacts{display:flex; flex-direction:column; gap:10px; align-items:center;}
+.t8-contacts{display:flex; flex-direction:column; gap:10px; align-items:flex-start; text-align:left;}
 .t8-contacts .contact-line{display:flex; align-items:center; gap:9px; font-size:12px; color:#fff; opacity:.92; word-break:break-word;}
 .t8-contacts svg{flex:0 0 auto; opacity:.85;}
 .t8-quote{text-align:left; padding-top:14px; border-top:1px solid rgba(255,255,255,.22);}
@@ -545,7 +608,7 @@ a.contact-line:hover{text-decoration:underline; text-decoration-color:currentCol
 
 /* ---------- narrow layout ----------
    Below this width the sidebar (editor) and canvas (preview) stop being
-   stacked areas on one long page and become two full height panels;
+   stacked areas on one long page and become two full-height panels;
    [data-mobile-view] on .app (set by the Edit/Preview buttons in JS)
    decides which one is visible. This replaces the old behavior where
    the whole editor form sat above the resume, pushing the actual
@@ -568,10 +631,11 @@ a.contact-line:hover{text-decoration:underline; text-decoration-color:currentCol
     row-gap:10px;
   }
   .brand{order:1;}
-  .iconbtn{order:2;}
-  .download-wrap{order:3;}
+  .cv-wrap{order:2;}
+  .iconbtn{order:3;}
+  .download-wrap{order:4;}
   .tabs{
-    order:4;
+    order:5;
     flex-basis:100%;
     min-width:0;
     flex-wrap:nowrap;
