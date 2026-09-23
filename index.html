@@ -160,6 +160,7 @@ const ICON = {
   moon: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>',
   user: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>',
   edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+  copy: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
   trash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>'
 };
 
@@ -264,9 +265,18 @@ function nextCvName(){
   while (cvs.some(cv => cv.name === 'CV ' + n)) n++;
   return 'CV ' + n;
 }
-function createCv(cvState = defaultState()){
-  const cv = { id: newId('cv'), name: nextCvName(), updatedAt: Date.now(), state: cvState };
-  cvs.push(cv);
+function copyCvName(name){
+  const base = name + ' copy';
+  let candidate = base;
+  for (let n = 2; cvs.some(cv => cv.name === candidate); n++) candidate = base + ' ' + n;
+  return candidate;
+}
+function cloneState(s){
+  return JSON.parse(JSON.stringify(s));
+}
+function createCv(cvState = defaultState(), name = nextCvName(), index = cvs.length){
+  const cv = { id: newId('cv'), name, updatedAt: Date.now(), state: cvState };
+  cvs.splice(index, 0, cv);
   return cv;
 }
 
@@ -1117,6 +1127,7 @@ function renderCvMenu(){
         <span class="cv-row-date">${formatCvDate(cv.updatedAt)}</span>
       </button>
       <button type="button" class="cv-row-icon" data-action="rename" data-id="${cv.id}" title="Rename">${ICON.edit}</button>
+      <button type="button" class="cv-row-icon" data-action="duplicate" data-id="${cv.id}" title="Duplicate">${ICON.copy}</button>
       ${canDelete ? `<button type="button" class="cv-row-icon cv-row-danger" data-action="delete" data-id="${cv.id}" title="Delete">${ICON.trash}</button>` : ''}
     </div>
   `).join('');
@@ -1209,6 +1220,17 @@ cvList.addEventListener('click', e => {
       if (ev.key === 'Enter') input.blur();
       if (ev.key === 'Escape'){ input.value = cv.name; input.blur(); }
     });
+  } else if (action === 'duplicate'){
+    if (!hasRoomForCv()) return;
+    saveNow();
+    const copy = createCv(cloneState(cv.state), copyCvName(cv.name), idx + 1);
+    if (!writeCvs()){
+      cvs.splice(idx + 1, 1);
+      cvNote("Couldn't duplicate, your browser's local storage is full.", 4000);
+      return;
+    }
+    activateCv(copy.id);
+    cvMenu.classList.remove('open');
   } else if (action === 'delete'){
     cvs.splice(idx, 1);
     if (cv.id === activeCvId) activateCv(cvs[Math.min(idx, cvs.length - 1)].id);
