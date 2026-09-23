@@ -1,6 +1,8 @@
-# Resumeow
+# [Resumeow](https://lelouc01101000.github.io/Resumeow/) 
 
 Resumeow is a client side CV builder. It runs entirely in the browser with no backend. the CV renders live in a fixed size page next to it, and the result can be exported as PNG or PDF. Multiple CVs are kept in `localStorage` and every change is saved automatically.
+
+Available at: https://lelouc01101000.github.io/Resumeow/
 
 ## Stack
 
